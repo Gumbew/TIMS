@@ -36,6 +36,22 @@ def print_hist(data):
     plt.show()
 
 
+def print_emp_hist(data):
+    l = len(data)
+    plt.title('Histogram')
+    plt.hist(
+        range(l),
+        bins=l,
+        weights=data,
+        color="black",
+        histtype='step'
+    )
+
+    plt.ylabel('n')
+    plt.xlabel('x')
+    plt.show()
+
+
 def calc_w(freq_table, amount):
     w_arr = []
     for key, value in freq_table.items():
@@ -45,6 +61,13 @@ def calc_w(freq_table, amount):
 
 def calc_frequency(data):
     return collections.Counter(data)
+
+
+def calc_emp_disc(data):
+    emp_table = [0.0]
+    for i in range(100):
+        emp_table.append(emp_table[-1] + data[i])
+    return emp_table
 
 
 def main():
@@ -61,6 +84,9 @@ def main():
     w_arr = calc_w(freq_table, amount)
 
     print_hist(w_arr)
+
+    emp_table = calc_emp_disc(w_arr)
+    print_emp_hist(emp_table)
 
 
 main()
