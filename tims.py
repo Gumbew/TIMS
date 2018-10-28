@@ -1,10 +1,14 @@
 import collections
+import os.path
 import random
+
 import matplotlib.pyplot as plt
 import numpy as np
 
 
 def gen_data(file_name, amount):
+    if os.path.isfile(file_name):
+        return
     _data = [random.randrange(0, 100) for i in range(amount)]
     f = open(file_name, '+w')
     for element in _data:
@@ -20,9 +24,9 @@ def read_data(file_name):
 
 
 data_file = "heh.data"
-
-# gen_data(data_file, 1000)
+gen_data(data_file, 1000)
 data = read_data(data_file)
+
 data = np.array(data)
 data = np.sort(data)
 
