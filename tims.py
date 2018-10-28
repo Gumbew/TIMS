@@ -24,16 +24,27 @@ def read_data(file_name):
 
 
 def print_hist(data):
-    l = len(data)
+    data_len = len(data)
     plt.title('Histogram')
     plt.hist(
-        range(l),
-        bins=l,
+        range(data_len),
+        bins=data_len,
         weights=data
     )
     plt.ylabel('n')
     plt.xlabel('x')
     plt.show()
+
+
+def calc_w(freq_table, amount):
+    w_arr = []
+    for key, value in freq_table.items():
+        w_arr.append(freq_table[key] / amount)
+    return w_arr
+
+
+def calc_frequency(data):
+    return collections.Counter(data)
 
 
 def main():
@@ -45,12 +56,11 @@ def main():
 
     data = np.sort(np.array(data))
 
-    freq_table = collections.Counter(data)
+    freq_table = calc_frequency(data)
 
-    w_arr = []
-    for key, value in freq_table.items():
-        w_arr.append(freq_table[key] / 1000)
+    w_arr = calc_w(freq_table, amount)
 
     print_hist(w_arr)
+
 
 main()
