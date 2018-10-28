@@ -23,22 +23,25 @@ def read_data(file_name):
     return _data
 
 
-data_file = "heh.data"
-gen_data(data_file, 1000)
-data = read_data(data_file)
+def main():
+    data_file = "heh.data"
+    gen_data(data_file, 1000)
+    data = read_data(data_file)
 
-data = np.array(data)
-data = np.sort(data)
+    data = np.array(data)
+    data = np.sort(data)
 
-freq_table = collections.Counter(data)
+    freq_table = collections.Counter(data)
+
+    w_arr = []
+    for key, value in freq_table.items():
+        w_arr.append(freq_table[key] / 1000)
+
+    plt.plot(freq_table.keys(), w_arr)
+    plt.show()
+    plt.hist(freq_table.keys(), freq_table.values())
+    plt.show()
+    print(w_arr)
 
 
-w_arr = []
-for key, value in freq_table.items():
-    w_arr.append(freq_table[key] / 1000)
-
-plt.plot(freq_table.keys(),w_arr)
-plt.show()
-plt.hist(freq_table.keys(),freq_table.values())
-plt.show()
-print(w_arr)
+main()
