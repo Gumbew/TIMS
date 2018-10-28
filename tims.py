@@ -6,10 +6,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def gen_data(file_name, amount):
+def gen_data(file_name, amount, top):
     if os.path.isfile(file_name):
         return
-    _data = [random.randrange(0, 100) for i in range(amount)]
+    _data = [random.randrange(0, top) for i in range(amount)]
     f = open(file_name, '+w')
     for element in _data:
         f.write("%s\n" % element)
@@ -23,13 +23,27 @@ def read_data(file_name):
     return _data
 
 
+def print_hist(data):
+    l = len(data)
+    plt.title('Histogram')
+    plt.hist(
+        range(l),
+        bins=l,
+        weights=data
+    )
+    plt.ylabel('n')
+    plt.xlabel('x')
+    plt.show()
+
+
 def main():
     data_file = "heh.data"
-    gen_data(data_file, 1000)
+    top = 100
+    amount = 1000
+    gen_data(data_file, amount, top)
     data = read_data(data_file)
 
-    data = np.array(data)
-    data = np.sort(data)
+    data = np.sort(np.array(data))
 
     freq_table = collections.Counter(data)
 
@@ -37,11 +51,6 @@ def main():
     for key, value in freq_table.items():
         w_arr.append(freq_table[key] / 1000)
 
-    plt.plot(freq_table.keys(), w_arr)
-    plt.show()
-    plt.hist(freq_table.keys(), freq_table.values())
-    plt.show()
-    print(w_arr)
-
+    print_hist(w_arr)
 
 main()
