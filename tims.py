@@ -1,6 +1,7 @@
 import collections
 import os.path
 import random
+import math
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -52,6 +53,18 @@ def print_emp_hist(data):
     plt.show()
 
 
+def print_freq_plot(keys, data):
+    plt.title('Plot')
+    plt.scatter(
+        keys,
+        data
+    )
+
+    plt.ylabel('n')
+    plt.xlabel('x')
+    plt.show()
+
+
 def calc_w(freq_table, amount):
     w_arr = []
     for key, value in freq_table.items():
@@ -68,6 +81,32 @@ def calc_emp_disc(data):
     for i in range(100):
         emp_table.append(emp_table[-1] + data[i])
     return emp_table
+
+
+def get_r(n):
+    i = 0
+    while (not (pow(2, i) < n and (n <= pow(2, i + 1)))):
+        i += 1
+    return i
+
+
+def get_m(i, r, data):
+    res = 0
+    for item in data:
+        if ((r + 1) * (i - 1) < item and item <= (r + 1) * i):
+            res += 1
+    return res
+
+
+def get_x_emp(r, n, f, data):
+    res = 0
+    for i in range(1, r + 1):
+        res += (pow((get_m(i, r, data) - n * get_p(r)), 2)) / n * get_p(r)
+    return res
+
+
+def get_p(r):
+    return 1 / (r + 1)
 
 
 def main():
@@ -87,6 +126,8 @@ def main():
 
     emp_table = calc_emp_disc(w_arr)
     print_emp_hist(emp_table)
+
+    # print_freq_plot(freq_table.keys(),freq_table.values())
 
 
 main()
