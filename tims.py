@@ -1,7 +1,6 @@
 import collections
 import os.path
 import random
-import math
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -24,7 +23,7 @@ def read_data(file_name):
     return _data
 
 
-def print_hist(data):
+def print_w_hist(data):
     data_len = len(data)
     plt.title('Histogram')
     plt.hist(
@@ -85,7 +84,7 @@ def calc_emp_disc(data):
 
 def get_r(n):
     i = 0
-    while (not (pow(2, i) < n and (n <= pow(2, i + 1)))):
+    while not (pow(2, i) < n and (n <= pow(2, i + 1))):
         i += 1
     return i
 
@@ -93,7 +92,7 @@ def get_r(n):
 def get_m(i, r, data):
     res = 0
     for item in data:
-        if ((r + 1) * (i - 1) < item and item <= (r + 1) * i):
+        if (r + 1) * (i - 1) < item <= (r + 1) * i:
             res += 1
     return res
 
@@ -122,7 +121,7 @@ def main():
 
     w_arr = calc_w(freq_table, amount)
 
-    print_hist(w_arr)
+    print_w_hist(w_arr)
 
     emp_table = calc_emp_disc(w_arr)
     print_emp_hist(emp_table)
