@@ -85,7 +85,7 @@ def calc_emp_disc(data):
 
 def get_r(n):
     i = 0
-    while (not (pow(2, i) < n and (n <= pow(2, i + 1)))):
+    while (not(pow(2, i) < n <= pow(2, i + 1))):
         i += 1
     return i
 
@@ -93,7 +93,7 @@ def get_r(n):
 def get_m(i, r, data):
     res = 0
     for item in data:
-        if ((r + 1) * (i - 1) < item and item <= (r + 1) * i):
+        if ((r + 1) * (i - 1) < item <= (r + 1) * i):
             res += 1
     return res
 
