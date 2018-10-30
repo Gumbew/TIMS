@@ -30,11 +30,18 @@ def read_data(file_name):
 def print_w_hist(data):
     data_len = len(data)
     plt.title('Histogram')
+    data_mod = []
+    for i in data:
+        for j in range(10):
+            data_mod.append(i / 10)
+    print(data_mod)
     plt.hist(
-        range(data_len),
-        bins=data_len,
-        weights=data
+        range(100),
+        rwidth=10,
+        weights=data_mod,
+        edgecolor="black"
     )
+    plt.xticks([0,10,20,30,40,50,60,70,80,90,100])
     plt.ylabel('w')
     plt.xlabel('x')
     plt.show()
@@ -74,7 +81,6 @@ def print_emp_hist(data):
 # статистичний розподіл для дискретних
 def print_freq_plot(keys, data):
     plt.title('Plot')
-    print(data)
     plt.hist(
         keys,
         bins=len(keys),
@@ -86,12 +92,22 @@ def print_freq_plot(keys, data):
     plt.show()
 
 
-# рахує частотні ймовірності
-def calc_w(freq_table, amount):
+# рахує частотні ймовірності для дискретних
+def calc_w_disc(freq_table, amount):
     w_arr = []
     for key, value in freq_table.items():
         w_arr.append(freq_table[key] / amount)
     return w_arr
+
+# рахує частотні ймовірності для неперевних
+def calc_w_cont(freq_table, amount):
+    res = []
+    for i in range(10):
+        c = 0
+        for j in range(10):
+            c += freq_table[i * 10 + j]
+        res.append(c / amount)
+    return res
 
 
 # повертає dictionary з x і кількості їх появи
@@ -138,7 +154,7 @@ def get_p(r):
 
 # розбиває посортовану вибірку на класи
 def make_cont_table(data, amount):
-    step = amount // get_r(amount) + 1
+    step = amount // (get_r(amount) + 1)
     res = []
     i = 0
     while i < len(data):
@@ -193,13 +209,21 @@ def main():
 
     freq_table = calc_frequency(data)
 
-    w_arr = calc_w(freq_table, amount)
+    w_arr = calc_w_disc(freq_table, amount)
 
-    print_w_hist(w_arr)
     print_w_plot(w_arr)
+    arr = make_cont_table(data, amount)
+    arr = np.array(arr)
+    #print(arr)
+    print(calc_w_cont(freq_table, amount))
+    res = make_count_avg_values(arr)
+    #print(res)
+    print_w_hist(calc_w_cont(freq_table, amount))
+
+
 
     emp_table = calc_emp_disc(w_arr)
-    print_emp_hist(emp_table)
+
 
     k = []
     for i in freq_table.keys():
@@ -207,18 +231,15 @@ def main():
     v = []
     for i in freq_table.values():
         v.append(i)
-    print_freq_plot(k, v)
 
-    arr = make_cont_table(data, amount)
-    arr = np.array(arr)
-    # print(arr)
-    res = make_count_avg_values(arr)
-    # print(res)
-    print("Дискретні \n")
-    numerical_characteristics(data)
-    print()
-    print("Неперервні \n")
-    numerical_characteristics(res)
+    print_freq_plot(k, v)
+    print_emp_hist(emp_table)
+
+    # print("Дискретні \n")
+    # numerical_characteristics(data)
+    # print()
+    # print("Неперервні \n")
+    # numerical_characteristics(res)
 
 
 main()
