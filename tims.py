@@ -2,9 +2,15 @@ import collections
 import os.path
 import random
 from scipy import stats
+import math
 
+from matplotlib import mlab
 import matplotlib.pyplot as plt
 import numpy as np
+import pylab
+
+top = 100
+amount = 1000
 
 
 # генеруємо вибірку
@@ -28,7 +34,7 @@ def read_data(file_name):
 
 # варіаційний ряд для неперервних
 def print_w_hist(data):
-    #data_len = len(data)
+    # data_len = len(data)
     plt.title('Task 1 cont')
     data_mod = []
     for i in data:
@@ -40,13 +46,13 @@ def print_w_hist(data):
         weights=data_mod,
         edgecolor="black"
     )
-    plt.xticks([0,10,20,30,40,50,60,70,80,90,100])
+    plt.xticks([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
     plt.ylabel('w')
     plt.xlabel('x')
     plt.show()
 
 
-#статистичний розподіл для неперервних
+# статистичний розподіл для неперервних
 def print_n_hist(data):
     data_mod = []
     plt.title('Task 2 cont')
@@ -59,10 +65,11 @@ def print_n_hist(data):
         weights=data_mod,
         edgecolor='black'
     )
-    plt.xticks([0,10,20,30,40,50,60,70,80,90,100])
+    plt.xticks([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
     plt.xlabel('x')
     plt.ylabel('n')
     plt.show()
+
 
 # Варіаційний ряд для дискретної величини
 def print_w_plot(data):
@@ -78,6 +85,7 @@ def print_w_plot(data):
     plt.show()
 
 
+# Емпірична функція розподілу
 def print_emp_hist(data):
     ll = len(data)
     plt.title('Emp disc')
@@ -116,6 +124,7 @@ def calc_w_disc(freq_table, amount):
         w_arr.append(freq_table[key] / amount)
     return w_arr
 
+
 # рахує частотні ймовірності для неперевних
 def calc_w_cont(freq_table, amount):
     res = []
@@ -126,6 +135,7 @@ def calc_w_cont(freq_table, amount):
         res.append(c / amount)
     return res
 
+
 # рахує кількість попадань для неперевних
 def calc_n_cont(freq_table, amount):
     res = []
@@ -135,6 +145,7 @@ def calc_n_cont(freq_table, amount):
             c += freq_table[i * 10 + j]
         res.append(c)
     return res
+
 
 # повертає dictionary з x і кількості їх появи
 def calc_frequency(data):
@@ -165,19 +176,82 @@ def get_m(i, r, data):
     return res
 
 
-# повертає x емпіричне
-def get_x_emp(r, n, f, data):
-    res = 0
-    for i in range(1, r + 1):
-        res += (pow((get_m(i, r, data) - n * get_p(r)), 2)) / n * get_p(r)
+# повертає ймовірність попадання в клас
+def get_p(data):
+    # res = (w -data[0])/(data[-1]-data[0])
+    res = 1 / (data[-1] - data[0])
     return res
 
 
-# повертає ймовірність попадання в клас
-def get_p(r):
-    return 1 / (r + 1)
+# повертає x емпіричне
+def get_x_emp(r, n, data, cont_data):
+    res = 0
+    for i in range(1, r + 1):
+        res += (math.pow(get_m(i, r, data) - n * get_p(cont_data[i]), 2) / n * get_p(cont_data[i]))
+    return res
 
 
+def get_xi(cont_data):
+    res = []
+    for i in cont_data:
+        res.append((i[-1] + i[0]) / 2)
+    return res
+
+
+def get_x_avg(fi, xi):
+    res = 0
+    for i in range(len(xi)):
+        res += fi[i] * xi[i]
+    return res
+
+
+def get_D(xi, x_avg):
+    res = 0
+    for i in xi:
+        res += (math.pow((i - x_avg), 2))
+    return res
+
+
+def get_ni(density, cont_data):
+    res = []
+    res.append(cont_data[0][-1] * density)
+    for i in range(1, len(cont_data) - 1):
+        res.append((cont_data[i][-1]-cont_data[i][0] )* density)
+    res.append(cont_data[-1][-1] * density)
+    return res
+
+
+def get_x_emp_v2(r, n, data, cont_data, freq_table):
+    fi = calc_w_cont(freq_table, n)
+    xi = get_xi(cont_data)
+    x_avg = get_x_avg(fi, xi)
+    gamma = get_D(xi, x_avg) ** (0.5)
+    a = x_avg - (3 ** 0.5) * gamma
+    b = x_avg + (3 ** 0.5) * gamma
+    density = 1 / (b - a)
+    ni = get_ni(density, cont_data)
+    res = 0
+    for i in range(len(ni)):
+        res += (math.pow((fi[i] - ni[i]), 2)) / ni[i]
+    sum=0
+    for i in ni:
+        sum+=i
+    return res
+
+# повертає x емпіричне
+def get_x_emp(r, n, data, cont_data,freq_table):
+    res = 0
+    fi = calc_w_cont(freq_table, n)
+    xi = get_xi(cont_data)
+    x_avg = get_x_avg(fi, xi)
+    gamma = get_D(xi, x_avg) ** (0.5)
+    a = x_avg - (3 ** 0.5) * gamma
+    b = x_avg + (3 ** 0.5) * gamma
+    density = 1 / (b - a)
+    pi = get_ni(density,cont_data)
+    for i in range(1, r + 1):
+        res += (math.pow(get_m(i, r, data) - n * pi[i], 2) / n * pi[i])
+    return res
 # розбиває посортовану вибірку на класи
 def make_cont_table(data, amount):
     step = amount // (get_r(amount) + 1)
@@ -190,10 +264,10 @@ def make_cont_table(data, amount):
 
 
 # повертає список середніх значень в проміжках
-def make_count_avg_values(data):
+def make_cont_avg_values(data):
     res = []
     for i in data:
-        res.append(np.mean(i))
+        res.append((i[0]+i[-1])/2)
     return res
 
 
@@ -210,65 +284,77 @@ def numerical_characteristics(data):
     print('Варіанса', variansa)
     range = data.max() - data.min()
     print('Розмах: ', range)
+    standard = variansa ** 0.5
+    print('Стандарт: ', standard)
     variatsiya = (variansa ** 0.5) / mean
     print('Варіація: ', variatsiya)
-    quantil = np.quantile(data, q=[0.25, 0.5, 0.75])
+    quartil = np.quantile(data, q=[0.25, 0.5, 0.75])
     de = np.quantile(data, q=[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
-    IDR = de[8] - de[0]
-    print('Інтердецильна широта', IDR)
-    IQR = quantil[2] - quantil[0]
-    print('Інтерквантильна широта', IQR)
+    idr = de[8] - de[0]
+    print('Інтердецильна широта', idr)
+    iqr = quartil[2] - quartil[0]
+    print('Інтерквантильна широта', iqr)
     asm = stats.skew(data)
     print('Асиметрія: ', asm)
     eks = stats.kurtosis(data)
     print('Ексцес', eks)
 
 
+def print_plots(freq_table, amount, w_arr, emp_table, k, v):
+    print_w_plot(w_arr)
+    print_w_hist(calc_w_cont(freq_table, amount))
+    print_freq_plot(k, v)
+    print_n_hist(calc_n_cont(freq_table, amount))
+    print_emp_hist(emp_table)
+    emp_cont_test = calc_emp_disc(w_arr)
+    emp_cont = emp_cont_test[1:]
+    emp_cont_func = emp_cont[9::10]
+    print_emp_func_cont(top, emp_cont_func)
+
+
+def emp_func_cont(x, top, emp_cont_func):
+    if x <= 0:
+        return 0
+    elif x > top:
+        return 1
+    else:
+        return emp_cont_func[(x // 10)]
+
+def print_emp_func_cont(top, emp_cont_func):
+    xarr = mlab.frange(1, top - 1, 1)
+    yarr = [emp_func_cont(x, top, emp_cont_func) for x in xarr]
+    print(xarr)
+    print(yarr)
+    pylab.plot(xarr, yarr)
+    pylab.show()
+
+
 def main():
     data_file = "heh.data"
-    top = 100
-    amount = 1000
     gen_data(data_file, amount, top)
     data = read_data(data_file)
-
     data = np.sort(np.array(data))
-
     freq_table = calc_frequency(data)
-
     w_arr = calc_w_disc(freq_table, amount)
-
-    print_w_plot(w_arr)
     arr = make_cont_table(data, amount)
     arr = np.array(arr)
-    #print(arr)
-    #print(calc_w_cont(freq_table, amount))
-    res = make_count_avg_values(arr)
-    #print(res)
-    print_w_hist(calc_w_cont(freq_table, amount))
-
-
-
+    cont = make_cont_avg_values(arr)
     emp_table = calc_emp_disc(w_arr)
-
-
     k = []
     for i in freq_table.keys():
         k.append(i)
     v = []
     for i in freq_table.values():
         v.append(i)
-
-    print_freq_plot(k, v)
-    print_emp_hist(emp_table)
-
-
-    print_n_hist(calc_n_cont(freq_table, amount))
-
+    print_plots(freq_table, amount, w_arr, emp_table, k, v)
     print("Дискретні \n")
     numerical_characteristics(data)
     print()
     print("Неперервні \n")
-    numerical_characteristics(res)
-
+    numerical_characteristics(cont)
+    print(get_x_emp(get_r(amount), amount, data, arr,freq_table))
+    print(stats.chi2.isf(0.05, get_r(amount)))
+    get_x_emp_v2(get_r(amount), amount, data, arr, freq_table)
 
 main()
+
